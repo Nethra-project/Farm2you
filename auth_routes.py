@@ -28,7 +28,7 @@ def send_otp():
 
     return jsonify({
         "status": "success",
-        "message": f"OTP sent to +91 {phone}. For demo testing, use code: {otp_code}",
+        "message": f"Verification code sent to +91 {phone}.",
         "otp_code": otp_code
     }), 200
 

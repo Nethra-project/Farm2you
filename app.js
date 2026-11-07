@@ -12,7 +12,7 @@ let currentListingForCheckout = null;
 // Multilingual Dictionary (English, Hindi, Tamil, Telugu)
 const I18N = {
     en: {
-        app_title: "🌾 Farm2you",
+        app_title: "Farm2you",
         app_subtitle: "Direct Agri Trade & Logistics",
         hero_title: "Transparent Direct Agricultural Marketplace",
         hero_desc: "Connecting Farmers & FPOs directly with Retail Consumers, Bulk Commercial Buyers, and On-Demand Delivery Drivers with fair mandi pricing benchmarks.",
@@ -22,7 +22,7 @@ const I18N = {
         lbl_login: "Log In"
     },
     hi: {
-        app_title: "🌾 Farm2you (फार्म टू यू)",
+        app_title: "Farm2you (फार्म टू यू)",
         app_subtitle: "प्रत्यक्ष कृषि व्यापार एवं रसद",
         hero_title: "पारदर्शी प्रत्यक्ष कृषि बाज़ार",
         hero_desc: "किसानों और एफपीओ को सीधे उपभोक्ताओं, थोक खरीदारों और डिलीवरी ड्राइवरों से निष्पक्ष मंडी मूल्य संकेतों के साथ जोड़ना।",
@@ -32,7 +32,7 @@ const I18N = {
         lbl_login: "लॉग इन"
     },
     ta: {
-        app_title: "🌾 Farm2you (பார்ம் டு யூ)",
+        app_title: "Farm2you (பார்ம் டு யூ)",
         app_subtitle: "நேரடி விவசாய வர்த்தகம் & விநியோகம்",
         hero_title: "நேரடி விவசாய சந்தை",
         hero_desc: "விவசாயிகளையும் எஃப்பிஓ-க்களையும் நுகர்வோர் மற்றும் மொத்த வாங்குபவர்களுடன் நேரடியாக இணைக்கிறது.",
@@ -42,7 +42,7 @@ const I18N = {
         lbl_login: "உள்நுழைவு"
     },
     te: {
-        app_title: "🌾 Farm2you (ఫార్మ్ టు యు)",
+        app_title: "Farm2you (ఫార్మ్ టు యు)",
         app_subtitle: "ప్రత్యక్ష వ్యవసాయ వాణిజ్యం & రవాణా",
         hero_title: "ప్రత్యక్ష వ్యవసాయ మార్కెట్",
         hero_desc: "రైతులు మరియు FPOలను నేరుగా వినియోగదారులు మరియు హోల్‌సేల్ వ్యాపారులతో అనుసంధానించడం.",
@@ -65,8 +65,8 @@ function applyLanguage(lang) {
     localStorage.setItem('farm2you_lang', lang);
     const strings = I18N[lang] || I18N.en;
 
-    document.getElementById('app-title').innerText = strings.app_title;
-    document.getElementById('app-subtitle').innerText = strings.app_subtitle;
+    if (document.getElementById('app-title')) document.getElementById('app-title').innerText = strings.app_title;
+    if (document.getElementById('app-subtitle')) document.getElementById('app-subtitle').innerText = strings.app_subtitle;
     if (document.getElementById('txt-hero-title')) document.getElementById('txt-hero-title').innerText = strings.hero_title;
     if (document.getElementById('txt-hero-desc')) document.getElementById('txt-hero-desc').innerText = strings.hero_desc;
     if (document.getElementById('txt-btn-getstarted')) document.getElementById('txt-btn-getstarted').innerText = strings.btn_getstarted;
@@ -103,6 +103,41 @@ async function apiFetch(endpoint, options = {}) {
         return { ok: false, status: 500, data: { status: 'error', message: 'Network connectivity failure.' } };
     }
 }
+
+// Native-feel Toast Notifications
+function showToast(message, type = 'info', duration = 3800) {
+    if (!message) return;
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    let icon = 'fa-circle-info';
+    if (type === 'success') icon = 'fa-circle-check';
+    if (type === 'error') icon = 'fa-circle-exclamation';
+    if (type === 'warning') icon = 'fa-triangle-exclamation';
+    
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+    container.appendChild(toast);
+    
+    requestAnimationFrame(() => toast.classList.add('active'));
+    
+    setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// Seamless non-blocking UI alert replacement
+window.alert = function(msg) {
+    if (!msg) return;
+    const isError = /fail|invalid|error|incorrect|required|blocked|rejected|expired|missing/i.test(msg);
+    const isSuccess = /success|verified|accepted|created|updated|placed|marked|sent|approved|unblocked/i.test(msg);
+    showToast(msg, isError ? 'error' : isSuccess ? 'success' : 'info');
+};
 
 // Navigation & View Routing
 function showView(viewId) {
@@ -268,12 +303,12 @@ function startSignup(role, subtype) {
     `;
 
     if (subtype === 'farmer') {
-        titleEl.innerText = "Step 2a: Farmer Registration";
-        subtitleEl.innerText = "Account verified by admin after mobile OTP. Skip Aadhaar (protects your privacy).";
+        titleEl.innerText = "Farmer Partner Registration";
+        subtitleEl.innerText = "Sell farm harvest directly with verified local APMC Mandi rates.";
         html += `
             <div class="form-row">
-                <div><label>Full Name *</label><input type="text" id="reg-fullname" placeholder="Farmer Name" required></div>
-                <div><label>Village *</label><input type="text" id="reg-village" placeholder="Village Name" required></div>
+                <div><label>Full Name *</label><input type="text" id="reg-fullname" placeholder="e.g. Ramesh Kumar" required></div>
+                <div><label>Village *</label><input type="text" id="reg-village" placeholder="Village or Tehsil" required></div>
             </div>
             <div class="form-row">
                 <div><label>District *</label><input type="text" id="reg-district" placeholder="District" required></div>
@@ -285,14 +320,14 @@ function startSignup(role, subtype) {
                 <input type="text" id="reg-crops" placeholder="e.g. Tomato, Onion, Potato, Wheat" required>
             </div>
             <div class="form-row">
-                <div><label>UPI ID (for instant direct payments)</label><input type="text" id="reg-upi" placeholder="e.g. name@upi"></div>
+                <div><label>UPI ID (Direct instant settlement)</label><input type="text" id="reg-upi" placeholder="e.g. ramesh@upi"></div>
                 <div><label>Bank Account Number</label><input type="text" id="reg-bank" placeholder="Account Number"></div>
                 <div><label>IFSC Code</label><input type="text" id="reg-ifsc" placeholder="e.g. SBIN0001234"></div>
             </div>
             <div>
-                <label>FPO Name (if you belong to one - optional dropdown)</label>
+                <label>FPO Affiliation (Optional)</label>
                 <select id="reg-fpo-name">
-                    <option value="">None / Independent Farmer</option>
+                    <option value="">Independent Producer (No FPO)</option>
                     <option value="Sahyadri Agro FPO">Sahyadri Agro FPO</option>
                     <option value="MahaAgri Farmer Producer Co">MahaAgri Farmer Producer Co</option>
                     <option value="Kisan Vikas Cooperative">Kisan Vikas Cooperative</option>
@@ -300,13 +335,13 @@ function startSignup(role, subtype) {
             </div>
         `;
     } else if (subtype === 'fpo') {
-        titleEl.innerText = "Step 2b: FPO Registration";
-        subtitleEl.innerText = "Farmer Producer Organization: Companies, Cooperatives, Societies.";
+        titleEl.innerText = "Farmer Producer Organisation (FPO)";
+        subtitleEl.innerText = "Register producer companies, cooperatives, and farmer clusters.";
         html += `
             <div class="form-row">
-                <div><label>FPO Name *</label><input type="text" id="reg-fpo-name-input" placeholder="e.g. Sahyadri Agro FPO" required></div>
+                <div><label>Organisation Name *</label><input type="text" id="reg-fpo-name-input" placeholder="e.g. Sahyadri Agro FPO" required></div>
                 <div>
-                    <label>Registration Type *</label>
+                    <label>Legal Entity Type *</label>
                     <select id="reg-fpo-type">
                         <option value="company">Producer Company</option>
                         <option value="society">Society</option>
@@ -315,16 +350,16 @@ function startSignup(role, subtype) {
                 </div>
             </div>
             <div class="form-row">
-                <div><label>Registration Number *</label><input type="text" id="reg-fpo-regno" placeholder="Registration No" required></div>
-                <div><label>Year of Registration *</label><input type="number" id="reg-fpo-year" value="2021" required></div>
+                <div><label>Registration Number *</label><input type="text" id="reg-fpo-regno" placeholder="Registration / CIN" required></div>
+                <div><label>Year of Incorporation *</label><input type="number" id="reg-fpo-year" value="2021" required></div>
             </div>
             <div class="form-row">
-                <div><label>Contact Person Name *</label><input type="text" id="reg-fpo-contact" placeholder="Manager Name" required></div>
+                <div><label>Contact Person Name *</label><input type="text" id="reg-fpo-contact" placeholder="Director / Manager Name" required></div>
                 <div><label>Designation *</label><input type="text" id="reg-fpo-desig" placeholder="e.g. Managing Director" required></div>
                 <div><label>Official Email *</label><input type="email" id="reg-email" placeholder="contact@fpo.org" required></div>
             </div>
             <div>
-                <label>Office Address, District, State, Pincode *</label>
+                <label>Office Address *</label>
                 <input type="text" id="reg-fpo-addr" placeholder="Registered office address" required>
             </div>
             <div class="form-row">
@@ -333,33 +368,33 @@ function startSignup(role, subtype) {
                 <div><label>Pincode *</label><input type="text" id="reg-pincode" placeholder="Pincode" required></div>
             </div>
             <div class="form-row">
-                <div><label>Number of Member Farmers *</label><input type="number" id="reg-fpo-members" value="50" required></div>
-                <div><label>Crops Handled *</label><input type="text" id="reg-crops" placeholder="e.g. Tomato, Grapes, Pomegranate" required></div>
+                <div><label>Total Member Farmers *</label><input type="number" id="reg-fpo-members" value="50" required></div>
+                <div><label>Primary Produce Handled *</label><input type="text" id="reg-crops" placeholder="e.g. Tomato, Grapes, Pomegranate" required></div>
             </div>
             <div class="form-row">
                 <div>
-                    <label>Storage / Collection Point Available? *</label>
+                    <label>Storage / Aggregation Point Available? *</label>
                     <select id="reg-fpo-storage"><option value="yes">Yes</option><option value="no">No</option></select>
                 </div>
                 <div><label>Storage Capacity (kg)</label><input type="number" id="reg-fpo-cap" placeholder="e.g. 50000"></div>
-                <div><label>GSTIN (Optional)</label><input type="text" id="reg-gstin" placeholder="GSTIN"></div>
+                <div><label>GSTIN (Optional)</label><input type="text" id="reg-gstin" placeholder="GSTIN Number"></div>
             </div>
             <div class="form-row">
-                <div><label>Bank Account Number *</label><input type="text" id="reg-bank" placeholder="FPO Bank Account" required></div>
+                <div><label>Settlement Bank Account *</label><input type="text" id="reg-bank" placeholder="FPO Account Number" required></div>
                 <div><label>IFSC Code *</label><input type="text" id="reg-ifsc" placeholder="IFSC Code" required></div>
             </div>
             <div>
-                <label>Upload Registration Certificate URL (or proof document link) *</label>
+                <label>Registration Certificate URL / Reference *</label>
                 <input type="text" id="reg-cert" placeholder="Certificate link or document reference" value="https://doc.platform.org/cert-sample.pdf" required>
             </div>
         `;
     } else if (subtype === 'retail_buyer') {
-        titleEl.innerText = "Step 2a: Household Consumer Registration";
-        subtitleEl.innerText = "Instant verification via OTP. Start buying fresh produce directly from farms!";
+        titleEl.innerText = "Household Consumer Registration";
+        subtitleEl.innerText = "Order farm-fresh vegetables and grains directly to your home.";
         html += `
             <div class="form-row">
                 <div><label>Full Name *</label><input type="text" id="reg-fullname" placeholder="Your Name" required></div>
-                <div><label>Email (Optional)</label><input type="email" id="reg-email" placeholder="email@example.com"></div>
+                <div><label>Email Address</label><input type="email" id="reg-email" placeholder="name@example.com"></div>
             </div>
             <div>
                 <label>Delivery Address & Landmark *</label>
@@ -380,11 +415,11 @@ function startSignup(role, subtype) {
             </div>
         `;
     } else if (subtype === 'bulk_buyer') {
-        titleEl.innerText = "Step 2b: Bulk Commercial Buyer Registration";
-        subtitleEl.innerText = "Hotels, restaurants, messes, retailers and processors. Verified by admin for large orders.";
+        titleEl.innerText = "Commercial Procurement Account";
+        subtitleEl.innerText = "For hotels, restaurants, caterers, supermarkets, and food processors.";
         html += `
             <div class="form-row">
-                <div><label>Business Name *</label><input type="text" id="reg-bizname" placeholder="e.g. Grand Vista Hotels" required></div>
+                <div><label>Business / Enterprise Name *</label><input type="text" id="reg-bizname" placeholder="e.g. Grand Vista Hotels Ltd" required></div>
                 <div>
                     <label>Business Type *</label>
                     <select id="reg-biztype" required>
@@ -393,35 +428,35 @@ function startSignup(role, subtype) {
                         <option value="mess">Mess or Canteen</option>
                         <option value="retailer">Retailer / Supermarket</option>
                         <option value="processor">Food Processor</option>
-                        <option value="other">Other</option>
+                        <option value="other">Other Enterprise</option>
                     </select>
                 </div>
             </div>
             <div class="form-row">
-                <div><label>Contact Person Name *</label><input type="text" id="reg-fullname" placeholder="Procurement Manager" required></div>
-                <div><label>Business Email *</label><input type="email" id="reg-email" placeholder="procurement@biz.com" required></div>
-                <div><label>GSTIN (Optional, with format check)</label><input type="text" id="reg-gstin" placeholder="e.g. 27AABCU9603R1ZM"></div>
+                <div><label>Authorized Contact Person *</label><input type="text" id="reg-fullname" placeholder="Procurement Manager Name" required></div>
+                <div><label>Official Email *</label><input type="email" id="reg-email" placeholder="procurement@enterprise.com" required></div>
+                <div><label>GSTIN (Format checked)</label><input type="text" id="reg-gstin" placeholder="e.g. 27AABCU9603R1ZM"></div>
             </div>
             <div>
-                <label>Delivery Warehouse / Kitchen Address *</label>
-                <input type="text" id="reg-addr" placeholder="Receiving warehouse or restaurant address" required>
+                <label>Receiving Facility / Kitchen Address *</label>
+                <input type="text" id="reg-addr" placeholder="Warehouse, receiving gate, or facility address" required>
             </div>
             <div class="form-row">
                 <div><label>City *</label><input type="text" id="reg-city" placeholder="City" required></div>
                 <div><label>Pincode *</label><input type="text" id="reg-pincode" placeholder="Pincode" required></div>
             </div>
             <div class="form-row">
-                <div><label>Crops Needed *</label><input type="text" id="reg-crops" placeholder="e.g. Potato, Onion, Tomato" required></div>
-                <div><label>Approx. Monthly Quantity *</label><input type="text" id="reg-monthly-qty" placeholder="e.g. 5000 kg" required></div>
+                <div><label>Crops Frequently Needed *</label><input type="text" id="reg-crops" placeholder="e.g. Potato, Onion, Tomato" required></div>
+                <div><label>Approx. Monthly Volume *</label><input type="text" id="reg-monthly-qty" placeholder="e.g. 5,000 kg" required></div>
             </div>
         `;
     } else if (subtype === 'driver') {
-        titleEl.innerText = "Step 1: Delivery Driver Registration";
-        subtitleEl.innerText = "Admin checks driving licence & vehicle details. Once verified, job requests appear.";
+        titleEl.innerText = "Fleet Driver Partner Registration";
+        subtitleEl.innerText = "Join the verified transport network for local farm route dispatch.";
         html += `
             <div class="form-row">
                 <div><label>Full Name *</label><input type="text" id="reg-fullname" placeholder="Driver Full Name" required></div>
-                <div><label>City & District You Serve *</label><input type="text" id="reg-city" placeholder="e.g. Pune" required></div>
+                <div><label>Base City & District *</label><input type="text" id="reg-city" placeholder="e.g. Pune" required></div>
             </div>
             <div>
                 <label>Pincodes You Serve (comma-separated) *</label>
@@ -429,23 +464,23 @@ function startSignup(role, subtype) {
             </div>
             <div class="form-row">
                 <div>
-                    <label>Vehicle Type *</label>
+                    <label>Vehicle Category *</label>
                     <select id="reg-vtype" required>
-                        <option value="tempo">Tempo</option>
-                        <option value="pickup_truck">Pickup Truck</option>
-                        <option value="mini_truck">Mini Truck</option>
-                        <option value="bike">Bike (under 50kg)</option>
+                        <option value="tempo">Tempo (Tata Ace / Mahindra Bolero)</option>
+                        <option value="pickup_truck">Pickup Truck (1-2 Ton)</option>
+                        <option value="mini_truck">Mini Truck (3+ Ton)</option>
+                        <option value="bike">Two-Wheeler (Under 50kg)</option>
                     </select>
                 </div>
-                <div><label>Vehicle Number *</label><input type="text" id="reg-vnum" placeholder="e.g. MH-12-AB-3456" required></div>
-                <div><label>Load Capacity (kg) *</label><input type="number" id="reg-cap" placeholder="e.g. 1000" required></div>
+                <div><label>Vehicle Registration Number *</label><input type="text" id="reg-vnum" placeholder="e.g. MH-12-AB-3456" required></div>
+                <div><label>Payload Capacity (kg) *</label><input type="number" id="reg-cap" placeholder="e.g. 1000" required></div>
             </div>
             <div>
-                <label>Driving Licence Photo URL *</label>
-                <input type="text" id="reg-licence" placeholder="Licence document link or photo reference" value="https://doc.platform.org/licence-sample.jpg" required>
+                <label>Commercial Driving Licence URL / Reference *</label>
+                <input type="text" id="reg-licence" placeholder="Licence document link or verification reference" value="https://doc.platform.org/licence-sample.jpg" required>
             </div>
             <div class="form-row">
-                <div><label>UPI ID for Payouts</label><input type="text" id="reg-upi" placeholder="driver@upi"></div>
+                <div><label>UPI ID for Trip Settlement</label><input type="text" id="reg-upi" placeholder="driver@upi"></div>
                 <div><label>Bank Account Number</label><input type="text" id="reg-bank" placeholder="Account Number"></div>
                 <div><label>IFSC Code</label><input type="text" id="reg-ifsc" placeholder="IFSC Code"></div>
             </div>
@@ -470,8 +505,7 @@ async function sendOtpRequest() {
 
     if (res.ok) {
         document.getElementById('otp-verify-section').style.display = 'block';
-        document.getElementById('reg-otp').value = res.data.otp_code || '123456';
-        document.getElementById('otp-status-msg').innerHTML = `<span style="color: green;">${res.data.message}</span>`;
+        document.getElementById('otp-status-msg').innerHTML = `<span style="color: var(--primary); font-size: 12px; font-weight: 600;">Verification code sent to +91 ${mobile}. <a href="#" style="color: var(--accent); text-decoration: underline; margin-left: 6px;" onclick="document.getElementById('reg-otp').value='${res.data.otp_code || '123456'}'; return false;">Auto-fill</a></span>`;
     } else {
         alert(res.data.message || 'Failed to send OTP.');
     }
@@ -671,7 +705,7 @@ async function loadFarmerDashboard() {
     const statusBanner = document.getElementById('farmer-status-banner');
     const addListingBtn = document.getElementById('btn-add-listing-trigger');
 
-    // Step 3 logic: Until approved, the dashboard opens but the Add Listing button is locked with a message
+    // Account status check: Until approved, the dashboard opens but the Add Listing button is locked with an advisory notice
     if (data.account_status === 'pending') {
         statusBanner.innerHTML = `
             <div class="alert-notice alert-warning">
@@ -702,8 +736,8 @@ async function loadFarmerDashboard() {
     // Set Welcome Title & FPO Extras Tab
     const isFpo = data.is_fpo;
     document.getElementById('farmer-welcome-title').innerText = isFpo
-        ? `🏛️ ${data.profile.fpo_name || 'FPO'} Dashboard`
-        : `👨‍🌾 Welcome, ${data.profile.full_name || 'Farmer'}`;
+        ? `${data.profile.fpo_name || 'FPO Producer Org'} Dashboard`
+        : `Farmer Portal: ${data.profile.full_name || 'Grower'}`;
 
     document.getElementById('tab-fpo-members-btn').style.display = isFpo ? 'inline-block' : 'none';
 
@@ -860,7 +894,7 @@ async function loadFarmerOrders(status = 'all') {
                 </div>
             </div>
 
-            <!-- Price Breakdown (Step 8: what you get, transport, platform fee, buyer pays) -->
+            <!-- Real-time Price Breakdown: farmer earnings, transport estimate, platform fee, total buyer cost -->
             <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 13px;">
                 <div><span style="color:var(--text-muted);">Farmer Payout:</span> <strong style="color:var(--primary); font-size: 15px;">₹${o.crop_total_price}</strong></div>
                 <div><span style="color:var(--text-muted);">Transport Fee:</span> ₹${o.transport_fee}</div>
@@ -877,7 +911,7 @@ async function loadFarmerOrders(status = 'all') {
                     <button class="btn-accent" onclick="markReadyForPickup(${o.id})"><i class="fa-solid fa-box"></i> Mark Ready for Pickup</button>
                 ` : o.status === 'ready_for_pickup' ? `
                     <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 8px 14px; border-radius: 6px; font-size: 13px; color: #92400e;">
-                        🔑 Driver Pickup Code: <strong style="letter-spacing: 2px; font-size: 16px;">${o.pickup_code}</strong> (Give this to driver at farm)
+                        <i class="fa-solid fa-key" style="margin-right: 6px;"></i> Pickup Verification PIN: <strong style="letter-spacing: 2px; font-size: 15px; background: white; padding: 2px 8px; border-radius: 4px; border: 1px solid #fde68a;">${o.pickup_code}</strong> (Share with fleet driver at farm)
                     </div>
                 ` : o.status === 'picked_up' ? `
                     <span style="color: #0369a1; font-weight: 600; font-size: 13px;"><i class="fa-solid fa-truck"></i> Produce picked up by driver. Out for delivery.</span>
@@ -925,7 +959,7 @@ async function rejectOrderWithReason(orderId) {
 async function markReadyForPickup(orderId) {
     const res = await apiFetch(`/farmer/orders/${orderId}/ready-pickup`, { method: 'POST' });
     if (res.ok) {
-        alert(`Marked ready for pickup! Driver pickup code: ${res.data.pickup_code}`);
+        showToast(`Produce marked ready for pickup! Verification PIN: ${res.data.pickup_code}`, 'success');
         loadFarmerOrders();
     } else {
         alert(res.data.message);
@@ -1194,7 +1228,7 @@ async function loadBuyerDashboard() {
     if (isBulk) {
         rfqBtn.style.display = 'inline-flex';
         rfqTabBtn.style.display = 'inline-block';
-        document.getElementById('buyer-welcome-title').innerText = `🏢 Bulk Commercial Buyer: ${data.profile.business_name || 'Buyer'}`;
+        document.getElementById('buyer-welcome-title').innerText = `Bulk Procurement: ${data.profile.business_name || 'Commercial Buyer'}`;
 
         if (data.account_status === 'pending') {
             banner.innerHTML = `
@@ -1209,7 +1243,7 @@ async function loadBuyerDashboard() {
     } else {
         rfqBtn.style.display = 'none';
         rfqTabBtn.style.display = 'none';
-        document.getElementById('buyer-welcome-title').innerText = `🛒 Fresh Produce Marketplace`;
+        document.getElementById('buyer-welcome-title').innerText = `Fresh Produce Catalog`;
         banner.innerHTML = '';
     }
 
@@ -1308,7 +1342,7 @@ async function loadCatalogListings() {
     }).join('');
 }
 
-// Listing Detail & Order Checkout Modal (Step 7)
+// Listing Detail & Order Checkout Modal
 async function openCheckoutModal(listingId) {
     const res = await apiFetch(`/buyer/listings/${listingId}`);
     if (!res.ok) return;
@@ -1342,7 +1376,7 @@ async function openCheckoutModal(listingId) {
         </div>
 
         <form onsubmit="handlePlaceOrderSubmit(event)">
-            <h4 style="margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">Step 7: Place Order</h4>
+            <h4 style="margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-weight: 700; color: var(--text-dark);">Order Details & Delivery</h4>
 
             <div class="form-row">
                 <div>
@@ -1460,7 +1494,7 @@ async function handlePlaceOrderSubmit(e) {
     }
 }
 
-// Buyer Orders Tracking (Step 9)
+// Buyer Orders Tracking Engine
 async function loadBuyerOrders() {
     const res = await apiFetch('/buyer/orders');
     if (!res.ok) return;
@@ -1490,7 +1524,7 @@ async function loadBuyerOrders() {
                     </div>
                 </div>
 
-                <!-- Status Progress Line (Step 9) -->
+                <!-- Visual Fulfillment Pipeline Progress -->
                 <div class="tracking-bar">
                     <div class="track-step ${currentIdx >= 0 ? 'done' : ''} ${currentIdx === 0 ? 'current' : ''}">
                         <div class="track-circle"><i class="fa-solid fa-receipt"></i></div>
@@ -1518,11 +1552,11 @@ async function loadBuyerOrders() {
                     </div>
                 </div>
 
-                <!-- Driver Info & Delivery Code (Step 9) -->
+                <!-- Driver Fleet Allocation & Handover PIN -->
                 <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 14px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         ${o.driver_name ? `
-                            <div style="font-size: 13px;">🚚 Assigned Driver: <strong>${o.driver_name}</strong> (${o.vehicle_type} - ${o.vehicle_number})</div>
+                            <div style="font-size: 13px;"><i class="fa-solid fa-truck" style="color: var(--primary); margin-right: 6px;"></i> Assigned Fleet Driver: <strong>${o.driver_name}</strong> (${o.vehicle_type} &bull; ${o.vehicle_number})</div>
                             <div style="font-size: 12px; color: var(--text-muted);"><i class="fa-solid fa-phone"></i> Driver Phone: <strong>${o.driver_phone || 'Available'}</strong></div>
                         ` : `
                             <div style="font-size: 13px; color: var(--text-muted);">Driver assignment in progress once producer accepts.</div>
@@ -1535,7 +1569,7 @@ async function loadBuyerOrders() {
                     </div>
                 </div>
 
-                <!-- Post Delivery Actions (Step 10) -->
+                <!-- Post Delivery Feedback & Order Resolution -->
                 <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
                     <button class="btn-secondary" onclick="viewOrderInvoice(${o.id})"><i class="fa-solid fa-file-invoice"></i> View Invoice</button>
                     ${o.status === 'out_for_delivery' || o.status === 'picked_up' ? `
@@ -1602,7 +1636,7 @@ function viewOrderInvoice(orderId) {
             <div style="padding: 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
                     <div>
-                        <h2>🌾 Farm2you GST Invoice</h2>
+                        <h2><i class="fa-solid fa-file-invoice" style="color: var(--primary); margin-right: 8px;"></i> Farm2you Tax Invoice</h2>
                         <div style="font-size: 12px; color: var(--text-muted);">Invoice #${o.id} | Date: ${o.created_at}</div>
                     </div>
                     <button class="btn-secondary" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Invoice</button>
@@ -1657,7 +1691,7 @@ function viewOrderInvoice(orderId) {
     });
 }
 
-// Bulk RFQs (Step 8)
+// Commercial Buyer RFQs & Producer Bidding
 function openBulkRfqModal() {
     document.getElementById('modal-bulk-rfq').classList.add('active');
 }
@@ -1715,7 +1749,7 @@ async function loadBuyerRfqs() {
                 <span class="status-badge ${r.status === 'open' ? 'active' : 'verified'}">${r.status}</span>
             </div>
 
-            <!-- Quotes side-by-side comparison (Step 8.3) -->
+            <!-- Competitive Farmer Quotations Comparison -->
             <h4 style="font-size: 14px; margin-bottom: 8px;">Submitted Farmer Quotes (${r.quotes ? r.quotes.length : 0})</h4>
             ${r.quotes && r.quotes.length > 0 ? `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
@@ -1812,7 +1846,7 @@ async function loadDriverDashboard() {
     const onlineBtn = document.getElementById('btn-driver-online-toggle');
     const onlineText = document.getElementById('lbl-driver-online-text');
 
-    // Verification check (Step 2: Until approved, the driver cannot see jobs)
+    // Driver verification check: active status required to access route job feed
     if (data.account_status === 'pending') {
         banner.innerHTML = `
             <div class="alert-notice alert-warning">
@@ -1840,7 +1874,7 @@ async function loadDriverDashboard() {
     document.getElementById('driver-stat-earnings-today').innerText = `₹${data.metrics.earnings_today}`;
     document.getElementById('driver-stat-total-deliveries').innerText = data.metrics.total_deliveries;
 
-    // Current Active Job (Step 5)
+    // Current Active Trip
     renderDriverCurrentJob(data.current_job);
 
     // Available Jobs Feed
@@ -1869,7 +1903,7 @@ function renderDriverCurrentJob(job) {
                 <span class="status-badge ${job.status}" style="font-size: 13px;">${job.status.replace('_', ' ')}</span>
             </div>
 
-            <!-- Multi-stop Pickup Plan (Step 5.3) -->
+            <!-- Multi-stop Pickup Plan -->
             <h4 style="font-size: 13px; text-transform: uppercase; color: #92400e; margin-bottom: 8px;">Optimized Stops Timeline</h4>
             <div class="stops-timeline">
                 <div class="stop-item">
@@ -1879,7 +1913,7 @@ function renderDriverCurrentJob(job) {
                     
                     ${job.status === 'accepted' ? `
                         <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 10px;">
-                            <label>Enter Pickup Code Shown by Farmer (Step 5.5) *</label>
+                            <label>Farmer Pickup Verification Code *</label>
                             <div style="display: flex; gap: 8px;">
                                 <input type="text" id="verify-farm-pickup-code" placeholder="6-digit code" maxlength="6" style="margin: 0; font-size: 16px; letter-spacing: 2px;">
                                 <button class="btn-primary" onclick="submitFarmPickupVerification(${job.id})"><i class="fa-solid fa-check"></i> Mark Picked Up</button>
@@ -1897,14 +1931,14 @@ function renderDriverCurrentJob(job) {
                     
                     ${job.status === 'picked_up' ? `
                         <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 10px;">
-                            <label>Enter Delivery Code from Buyer (Step 5.8) *</label>
+                            <label>Buyer Delivery Drop Code *</label>
                             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                                 <input type="text" id="verify-buyer-delivery-code" placeholder="6-digit code" maxlength="6" style="margin: 0; font-size: 16px; letter-spacing: 2px;">
                                 <button class="btn-primary" onclick="submitBuyerDropVerification(${job.id}, '${job.payment_method}', ${job.total_amount})"><i class="fa-solid fa-circle-check"></i> Mark Delivered</button>
                             </div>
                             ${job.payment_method === 'COD' ? `
                                 <div style="font-size: 12px; color: #b45309; font-weight: bold;">
-                                    💵 Collect Cash on Delivery: ₹${job.total_amount}
+                                    <i class="fa-solid fa-hand-holding-dollar"></i> Collect Cash on Delivery: ₹${job.total_amount}
                                 </div>
                             ` : ''}
                         </div>
@@ -2053,7 +2087,7 @@ async function loadDriverEarningsHistory() {
                     ${data.jobs.map(j => `
                         <tr>
                             <td>#${j.id}</td>
-                            <td>${j.pickup_village} ➔ ${j.drop_city}</td>
+                            <td>${j.pickup_village} <i class="fa-solid fa-arrow-right-long" style="color: var(--text-muted); font-size: 11px;"></i> ${j.drop_city}</td>
                             <td>${j.total_weight_kg} kg</td>
                             <td><strong style="color: var(--primary);">₹${j.driver_pay}</strong></td>
                             <td><span class="status-badge ${j.status}">${j.status}</span></td>
@@ -2122,7 +2156,7 @@ function switchAdminTab(tab) {
     });
 }
 
-// Verification Queue (Step 4)
+// Administrator KYC Verification Queue
 async function loadAdminVerifications(type = 'all') {
     const res = await apiFetch(`/admin/verifications?type=${type}`);
     if (!res.ok) return;
@@ -2211,7 +2245,7 @@ async function actionVerification(userId, action) {
     }
 }
 
-// User Management (Step 5)
+// User Directory & Access Governance
 async function loadAdminUsers() {
     const res = await apiFetch('/admin/users');
     if (!res.ok) return;
@@ -2264,7 +2298,7 @@ async function toggleUserBlock(userId) {
     }
 }
 
-// Listing Moderation (Step 6)
+// Listing & Catalog Moderation
 async function loadAdminListings() {
     const res = await apiFetch('/admin/listings');
     if (!res.ok) return;
@@ -2578,4 +2612,15 @@ async function handleForgotPasswordSubmit(e) {
     } else {
         alert(res.data.message);
     }
+}
+
+// Developer Role Switcher Modal Controls
+function openDevAccountsModal() {
+    const m = document.getElementById('modal-dev-accounts');
+    if (m) m.classList.add('active');
+}
+
+function closeDevAccountsModal() {
+    const m = document.getElementById('modal-dev-accounts');
+    if (m) m.classList.remove('active');
 }
