@@ -1,5 +1,8 @@
 # Farm2you - Agricultural B2B & Direct Supply Network
 
+> 🌐 **Live Web Application:** [https://farm2you-1.onrender.com](https://farm2you-1.onrender.com)  
+> 🔑 **Pre-Seeded Test Accounts:** Listed below under [Pre-Seeded Test Accounts](#pre-seeded-test-accounts) (Farmer, FPO, Retail Buyer, Bulk Buyer, Driver, Admin).
+
 A full-stack agricultural marketplace platform connecting Farmers & FPOs directly with Retail Consumers, Bulk Commercial Buyers, and On-Demand Delivery Drivers with fair Mandi benchmark pricing.
 
 ---
