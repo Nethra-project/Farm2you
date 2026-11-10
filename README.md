@@ -45,7 +45,7 @@ A full-stack agricultural marketplace platform connecting Farmers & FPOs directl
 
 ---
 
-## 🌐 Multilingual Support
+## Multilingual Support
 Built-in instant language switching across the entire platform:
 * **English**
 * **हिन्दी (Hindi)**
